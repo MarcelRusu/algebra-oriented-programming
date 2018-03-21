@@ -1,0 +1,293 @@
+---
+author: 'Marcel-Alin Rusu'
+title: 'Algebra Oriented Programming'
+
+...
+
+#Algebra
+
+. . .
+
+*Definition*
+
+. . .
+
+- A set together with one or more operations defined on it that statifies a list of axioms
+
+#Algebra
+
+
+*Translations*
+
+. . .
+
+Set = Type
+
+. . .
+
+Operation = Function
+
+. . .
+
+List of Axioms = List of Rules (for how the Functions behave)
+
+- This doesn't translate into most languages' semantics
+
+. . .
+
+# Monoid
+
+*Definition*
+
+- A type that has a binary function mappend which has the following properties
+
+- Closure - if a: T & b: T then f(a, b) : T
+
+. . .
+
+- Associativity - f(a, f(b, c)) == f(f(a, b), c)
+
+. . .
+
+- Idenity - f(a, id) = a & f(id, a) = a
+
+. . .
+
+# Monoid
+
+*Example*
+
+Type = Integers
+Function = +
+
+. . .
+
+- Closure
+
+```Haskell
+1 + 2 == 3 : Integer
+```
+
+. . .
+
+- Associativity
+
+```Haskell
+(1 + 2) + 2 == 1 + (2 + 2)
+```
+
+. . .
+
+- Idenity
+```JavaScript
+1 + 0 == 1
+0 + 1 == 1
+```
+
+# Monoid
+
+*Implementation*
+
+```kotlin
+interface Monoid<T> {
+    midentity : T,
+    mappend   : (a: T, b: T) => T
+}
+```
+
+. . .
+
+```Haskell
+type Log = { length: number, summary: string }
+```
+
+. . .
+
+- This is a monoid since number with addition and string with concat are both monoids
+
+. . .
+
+```JavaScript
+const logId = { length: 0, summary: '' }
+```
+
+. . .
+
+```JavaScript
+const logAppend = (a: Log, b: Log) =>
+    ({
+        length  : a.length + b.length,
+        summary : `${a.summary}\n${b.summary}`
+    })
+```
+
+# Use case - Reduce
+
+- If we have a list of monoids, to reduce the list we can just apply mappend and start with midentity
+
+. . .
+
+```JavaScript
+const aggregateLogs = (l: Log[]) => l.reduce(logAppend, logId)
+```
+
+# Isomorphisms and other Structure Preserving Transformations
+
+- An Isomorphism is a function / mapping that is 1-1 and onto
+
+. . .
+
+- Isomorphism implies tight coupling between types / domains
+
+. . .
+
+*Example*
+
+- Virtual Dom
+
+. . .
+
+- Virtual Dom is a representation of an HTML Document Object Model that is virtual (not actually attached to the page)
+
+. . .
+
+```html
+<div id="mydiv">
+    <input type="text" />
+</div>
+```
+
+. . .
+
+is isomorphic to
+
+```JavaScript
+{
+    type: 'div',
+    id: 'mydiv',
+    children: [
+        {
+            type: 'input',
+            attributes: [
+                { 'type': 'text' }
+            ]
+        }
+    ]
+}
+```
+
+# Isomorphisms and other Structure Preserving Transformations
+
+- The cool part about the virtual dom is for frameworks like react dom-diffing is now a lot less computationally expensive
+
+. . .
+
+*Takeaway*
+
+- Well defined Isomorphisms / Structure Preserving Transformations allow for optimiations or simplifications by transforming the data into a domain that is easier to work with
+
+# Functors
+
+- This is where the connection between pure math and CS gets hazy
+
+. . .
+
+- We'll leave out the details
+
+. . .
+
+```kotlin
+interface Functor<A> {
+    map<B>: (f: (a: A) => B) => Functor<B>
+}
+```
+
+. . .
+
+- Functor has 2 laws
+
+1 - Functors must preserve identity function
+```JavaScript
+const id = x => x
+functor.map(id) === functor
+```
+
+. . .
+
+2 - Functors preserve composition of functions
+```JavaScript
+functor.map(x => g(f(x))) === functor.map(f).map(g)
+```
+
+# Functor Examples
+
+- List / Array
+
+. . .
+
+- JavaScript already has a map function defined on arrays
+
+```JavaScript
+[1, 2, 3].map(x => x * x) // [1, 4, 9]
+```
+
+. . .
+
+- This is where the second law becomes important
+
+```JavaScript
+const arr = [1, 2, 3]
+
+arr.map(x => x * x).map(x => x % 3)
+
+// is much slower than
+
+arr.map(compose(
+    x => x * x,
+    x => x % 3
+))
+```
+
+# Functor Examples
+
+- Tree
+
+```JavaScript
+const treeMap<A, B> = (tree: Tree<A>, f: (a: A) => B) => {
+    if (tree) {
+        tree.value = f(tree.value)
+        treeMap(tree.left, f)
+        treeMap(tree.right, f)
+    }
+}
+```
+
+# Functors
+
+*Takeaway*
+
+- Functors are a generalized way to transform data by "lifting" the underlying value of a container type, applying the transformation and putting it back into it's container type
+
+
+# Conclusion
+
+*Use math!!*
+
+. . .
+
+- The main point is an algebraic foundation for your programs is important
+
+    * Helps you reason about logic with the laws
+    * Heavily composable
+    * Domain tranformations can help abstract and optimize a lot
+
+. . .
+
+- Lots to learn (Monads, Applicative Functors, Algebraic Data Types, Free Monads, etc...)
+
+. . .
+
+Thanks!
+
+
+# Questions?
