@@ -10,3 +10,5 @@ Topics include
 - Monoids
 - Isomorphisms
 - Functors
+
+Examples written in typescript
